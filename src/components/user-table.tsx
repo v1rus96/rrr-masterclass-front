@@ -47,6 +47,8 @@ interface User {
   updatedat: string;
   status: string;
   remarks: string | null;
+  type: string | null;
+  attended: boolean | null;
   userid?: number;
 }
 
@@ -65,7 +67,7 @@ function UserTableContent({
 }: {
   users: User[];
   editingCell: { userId: number; field: string; } | null;
-  handleEdit: (userId: number, field: string, value: string) => Promise<void>;
+  handleEdit: (userId: number, field: string, value: string | boolean) => Promise<void>;
   totalPages: number;
   currentPage: number;
   setCurrentPage: (page: number) => void;
@@ -81,7 +83,9 @@ function UserTableContent({
             <TableHead>Last Name</TableHead>
             <TableHead>Phone</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Attending</TableHead>
+            <TableHead>Mode</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Attended</TableHead>
             <TableHead>Remarks</TableHead>
           </TableRow>
         </TableHeader>
@@ -143,12 +147,12 @@ function UserTableContent({
                       setEditingCell({ userId: user.userid, field: "lastname" })
                     }
                   >
-                    {user.lastname || <p className="text-gray-300">N/A</p>}
+                    {user.lastname || <p className="text-gray-300">-</p>}
                   </span>
                 )}
               </TableCell>
               <TableCell>
-                {user.phonenumber || <p className="text-gray-300">N/A</p>}
+                {user.phonenumber || <p className="text-gray-300">-</p>}
               </TableCell>
               <TableCell>
                 {editingCell?.userId === user.userid &&
@@ -201,9 +205,8 @@ function UserTableContent({
                   <Select
                     defaultValue={user.onboarding ? "online" : "offline"}
                     onValueChange={(value) =>
-                      user.userid &&
                       handleEdit(
-                        user.userid,
+                        user.userid!,
                         "onboarding",
                         value === "online" ? "true" : "false"
                       )
@@ -222,9 +225,8 @@ function UserTableContent({
                     variant={user.onboarding ? "success" : "secondary"}
                     className="cursor-pointer"
                     onClick={() =>
-                      user.userid &&
                       setEditingCell({
-                        userId: user.userid,
+                        userId: user.userid!,
                         field: "onboarding",
                       })
                     }
@@ -234,40 +236,52 @@ function UserTableContent({
                 )}
               </TableCell>
               <TableCell>
-                {editingCell?.userId === user.userid &&
-                editingCell?.field === "remarks" ? (
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      defaultValue={user.remarks || ""}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          user.userid &&
-                            handleEdit(
-                              user.userid,
-                              "remarks",
-                              e.currentTarget.value
-                            );
-                        }
-                      }}
-                    />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => setEditingCell(null)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <span
-                    className="cursor-pointer hover:underline"
-                    onClick={() =>
-                      user.userid &&
-                      setEditingCell({ userId: user.userid, field: "remarks" })
-                    }
+                {editingCell?.userId === user.userid && editingCell?.field === "type" ? (
+                  <Select
+                    defaultValue={user.type || "free"}
+                    onValueChange={(value) => handleEdit(user.userid!, "type", value)}
                   >
-                    {user.remarks || <p className="text-gray-300">N/A</p>}
-                  </span>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="free">Free</SelectItem>
+                      <SelectItem value="paid">Paid</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Badge
+                    variant={user.type === "paid" ? "success" : "secondary"}
+                    className="cursor-pointer capitalize"
+                    onClick={() => setEditingCell({ userId: user.userid!, field: "type" })}
+                  >
+                    {user.type || "free"}
+                  </Badge>
+                )}
+              </TableCell>
+              <TableCell>
+                <input
+                  type="checkbox"
+                  checked={user.attended ?? false}
+                  onChange={(e) => {
+                    const newValue = e.target.checked;
+                    console.log('Checkbox changed:', { oldValue: user.attended, newValue });
+                    handleEdit(user.userid!, "attended", newValue);
+                  }}
+                  className="w-4 h-4"
+                />
+              </TableCell>
+              <TableCell>
+                {editingCell?.userId === user.userid && editingCell?.field === "remarks" ? (
+                  <Input
+                    className="w-full"
+                    defaultValue={user.remarks || ""}
+                    onBlur={(e) => handleEdit(user.userid!, "remarks", e.target.value)}
+                  />
+                ) : (
+                  <div onClick={() => setEditingCell({ userId: user.userid!, field: "remarks" })}>
+                    {user.remarks || <p className="text-gray-300">-</p>}
+                  </div>
                 )}
               </TableCell>
             </TableRow>
@@ -369,7 +383,8 @@ export function UserTable() {
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [onboardingFilter, setOnboardingFilter] = useState("all");
+  const [modeFilter, setModeFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [phoneFilter, setPhoneFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [editingCell, setEditingCell] = useState<{
@@ -383,18 +398,36 @@ export function UserTable() {
 
   const fetchUsers = async () => {
     try {
-      const { users, totalUsers } = await getUsers(
+      console.log('Fetching users with current filters:', {
+        searchTerm,
+        currentPage,
+        itemsPerPage,
+        statusFilter,
+        modeFilter,
+        typeFilter,
+        phoneFilter,
+        createdAtFilter
+      });
+
+      const { users: fetchedUsers, totalUsers } = await getUsers(
         searchTerm,
         (currentPage - 1) * itemsPerPage,
         itemsPerPage,
         {
-          status: statusFilter === "all" ? undefined : statusFilter,
-          onboarding:
-            onboardingFilter === "all"
+          status:
+            statusFilter === "all"
               ? undefined
-              : onboardingFilter === "online"
+              : statusFilter,
+          onboarding:
+            modeFilter === "all"
+              ? undefined
+              : modeFilter === "online"
               ? true
               : false,
+          type:
+            typeFilter === "all"
+              ? undefined
+              : typeFilter,
           hasPhoneNumber:
             phoneFilter === "all"
               ? undefined
@@ -404,12 +437,23 @@ export function UserTable() {
           createdat: createdAtFilter ? format(createdAtFilter, 'yyyy-MM-dd') : undefined,
         }
       );
-      setUsers(users);
+
+      console.log('Fetched users:', fetchedUsers);
+      
+      // Transform the users data to include required properties
+      const transformedUsers = fetchedUsers.map(user => ({
+        ...user,
+        type: user.type || null,
+        attended: user.attended ?? false, // Use nullish coalescing for attended
+      }));
+
+      console.log('Transformed users:', transformedUsers);
+      
+      setUsers(transformedUsers);
       setTotalPages(Math.ceil(totalUsers / itemsPerPage));
     } catch (error) {
       console.error("Error fetching users:", error);
       setUsers([]);
-      setTotalPages(0);
     }
   };
 
@@ -442,34 +486,43 @@ export function UserTable() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, onboardingFilter, createdAtFilter, phoneFilter]);
+  }, [searchTerm, statusFilter, modeFilter, typeFilter, createdAtFilter, phoneFilter]);
 
   // Fetch users when any filter or page changes
   useEffect(() => {
     fetchUsers();
-  }, [searchTerm, currentPage, statusFilter, onboardingFilter, createdAtFilter, phoneFilter]);
+  }, [searchTerm, currentPage, statusFilter, modeFilter, typeFilter, createdAtFilter, phoneFilter]);
 
   useEffect(() => {
     fetchStatusCounts();
   }, []);
 
-  const handleEdit = async (userId: number, field: string, value: string) => {
+  const handleEdit = async (userId: number, field: string, value: string | boolean) => {
     try {
+      console.log('handleEdit called with:', { userId, field, value, typeof: typeof value });
       const updatedUser = users.find((user) => user.userid === userId);
       if (updatedUser) {
-        const updatedData = {
-          ...updatedUser,
-          [field]: field === "onboarding" ? value === "true" : value,
+        const updates = {
+          [field]: value,
         };
-        await updateUser(userId, { [field]: value });
-        setUsers(
-          users.map((user) => (user.userid === userId ? updatedData : user))
-        );
+        console.log('Sending update:', updates);
+        const result = await updateUser(userId, updates);
+        console.log('Update result:', result);
+
+        if (result.success) {
+          // Update local state immediately
+          setUsers(prevUsers => 
+            prevUsers.map(user => 
+              user.userid === userId 
+                ? { ...user, [field]: value }
+                : user
+            )
+          );
+        }
       }
+      setEditingCell(null);
     } catch (error) {
       console.error("Error updating user:", error);
-    } finally {
-      setEditingCell(null);
     }
   };
 
@@ -498,15 +551,28 @@ export function UserTable() {
             />
           </div>
           <div className="flex-1">
-            <Label htmlFor="onboarding-filter">Attending</Label>
-            <Select value={onboardingFilter} onValueChange={setOnboardingFilter}>
-              <SelectTrigger id="onboarding-filter">
-                <SelectValue placeholder="Filter by onboarding" />
+            <Label htmlFor="mode-filter">Mode</Label>
+            <Select value={modeFilter} onValueChange={setModeFilter}>
+              <SelectTrigger id="mode-filter">
+                <SelectValue placeholder="Filter by mode" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="online">Online</SelectItem>
                 <SelectItem value="offline">Offline</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1">
+            <Label htmlFor="type-filter">Type</Label>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger id="type-filter">
+                <SelectValue placeholder="Filter by type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="free">Free</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
               </SelectContent>
             </Select>
           </div>

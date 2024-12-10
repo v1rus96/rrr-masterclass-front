@@ -20,6 +20,8 @@ model User {
   lastname     String?
   status       String?   @default("\"new\"::character varying") @db.VarChar(50)
   remarks      String?
+  type         String?   @default("free") @db.VarChar(20)
+  attended     Boolean?  @default(false)
 
   @@map("users")
 }

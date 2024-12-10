@@ -26,6 +26,8 @@ export const userSchema = z.object({
   updatedat: z.string(), // ISO timestamp
   status: z.string().default("pending"), // Status column
   remarks: z.string().nullable(), // Remarks column
+  type: z.string().nullable(),
+  attended: z.boolean().nullable(),
 });
 
 export type SelectUser = z.infer<typeof userSchema>;
@@ -35,7 +37,13 @@ export async function getUsers(
   search: string,
   offset: number = 0,
   limit: number = 15,
-  filters?: { status?: string; onboarding?: boolean; hasPhoneNumber?: boolean; createdat?: string | null }
+  filters?: {
+    status?: string;
+    onboarding?: boolean;
+    hasPhoneNumber?: boolean;
+    createdat?: string | null;
+    type?: string;
+  }
 ): Promise<{
   users: SelectUser[];
   totalUsers: number;
@@ -44,6 +52,8 @@ export async function getUsers(
   totalUnqualified: number;
 }> {
   let query = supabase.from("users").select("*", { count: "exact" });
+
+  console.log('Fetching users with:', { search, offset, limit, filters });
 
   // Filter by search term
   if (search) {
@@ -71,6 +81,11 @@ export async function getUsers(
     }
   }
 
+  // Apply type filter
+  if (filters?.type && filters.type !== "all") {
+    query = query.eq("type", filters.type);
+  }
+
   if (filters?.createdat) {
     query = query.gte("createdat", filters.createdat);
   }
@@ -79,6 +94,8 @@ export async function getUsers(
   query = query.range(offset, offset + limit - 1);
 
   const { data: users, count: totalUsers, error } = await query;
+  
+  console.log('Fetched users response:', { users, totalUsers, error });
 
   // Calculate total onboarded users
   const { count: totalOnboarded } = await supabase
@@ -98,11 +115,11 @@ export async function getUsers(
 
   if (error) {
     console.error("Error fetching users:", error);
-    return { users: [], totalUsers: 0, totalOnboarded: 0, totalQualified: 0, totalUnqualified: 0 };
+    throw new Error("Failed to fetch users");
   }
 
   return {
-    users: users || [],
+    users: users as SelectUser[],
     totalUsers: totalUsers || 0,
     totalOnboarded: totalOnboarded || 0,
     totalQualified: totalQualified || 0,
@@ -122,15 +139,22 @@ export async function deleteUserById(userId: number) {
 
 // Update a user by ID
 export async function updateUser(userId: number, updates: Partial<SelectUser>) {
-  const { error } = await supabase
+  console.log('Updating user with:', { userId, updates });
+  
+  // Convert userId to bigint for Supabase
+  const bigIntUserId = BigInt(userId);
+  
+  const { data, error } = await supabase
     .from("users")
     .update(updates)
-    .eq("userid", userId);
+    .eq("userid", bigIntUserId)
+    .select();
+
+  console.log('Supabase response:', { data, error });
 
   if (error) {
     console.error("Error updating user:", error);
     throw new Error("Failed to update user");
   }
+  return { success: true, data };
 }
-
-
