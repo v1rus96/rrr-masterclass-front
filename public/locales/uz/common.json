@@ -1,0 +1,9 @@
+{
+    "welcomeMessage": "Foydalanuvchi Paneliga Xush Kelibsiz",
+    "totalUsers": "Jami Foydalanuvchilar",
+    "onboardedUsers": "Ro'yxatdan o'tgan Foydalanuvchilar",
+    "pendingUsers": "Kutilayotgan Foydalanuvchilar",
+    "inactiveUsers": "Faol Bo'lmagan Foydalanuvchilar",
+    "logout": "Chiqish"
+  }
+  

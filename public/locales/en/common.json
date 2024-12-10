@@ -1,0 +1,9 @@
+{
+    "welcomeMessage": "Welcome to the User Dashboard",
+    "totalUsers": "Total Users",
+    "onboardedUsers": "Onboarded Users",
+    "pendingUsers": "Pending Users",
+    "inactiveUsers": "Inactive Users",
+    "logout": "Log Out"
+  }
+  

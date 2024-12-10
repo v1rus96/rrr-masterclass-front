@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  userid       BigInt    @id
+  username     String?   @default("")
+  firstname    String?
+  languagecode String?
+  phonenumber  String?
+  onboarding   Boolean?  @default(false)
+  createdat    DateTime? @default(now()) @db.Timestamp(6)
+  updatedat    DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+  lastname     String?
+  status       String?   @default("\"new\"::character varying") @db.VarChar(50)
+  remarks      String?
+
+  @@map("users")
+}
+
+model messages {
+  id         Int      @id @default(autoincrement())
+  text       String?
+  media_id   String?
+  media_type String?
+  latitude   Decimal? @db.Decimal(10, 8)
+  longitude  Decimal? @db.Decimal(11, 8)
+
+  @@map("messages")
+}
