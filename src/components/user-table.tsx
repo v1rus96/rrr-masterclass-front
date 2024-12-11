@@ -394,6 +394,7 @@ const DynamicUserTableContent = dynamic(
 );
 
 export function UserTable() {
+  const [dateRange, setDateRange] = useState<{start?: Date, end?: Date}>({ start: undefined, end: undefined });
   const [createdAtFilter, setCreatedAtFilter] = useState<Date | undefined>(undefined);
   const [users, setUsers] = useState<User[]>([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -422,7 +423,7 @@ export function UserTable() {
         modeFilter,
         typeFilter,
         phoneFilter,
-        createdAtFilter
+        dateRange
       });
 
       const { users: fetchedUsers, totalUsers } = await getUsers(
@@ -450,7 +451,10 @@ export function UserTable() {
               : phoneFilter === "with"
               ? true
               : false,
-          createdat: createdAtFilter ? format(createdAtFilter, 'yyyy-MM-dd') : undefined,
+          dateRange: {
+            start: dateRange.start,
+            end: dateRange.end
+          }
         }
       );
 
@@ -502,12 +506,12 @@ export function UserTable() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, modeFilter, typeFilter, createdAtFilter, phoneFilter]);
+  }, [searchTerm, statusFilter, modeFilter, typeFilter, dateRange, phoneFilter]);
 
   // Fetch users when any filter or page changes
   useEffect(() => {
     fetchUsers();
-  }, [searchTerm, currentPage, statusFilter, modeFilter, typeFilter, createdAtFilter, phoneFilter]);
+  }, [searchTerm, currentPage, statusFilter, modeFilter, typeFilter, dateRange, phoneFilter]);
 
   useEffect(() => {
     fetchStatusCounts();
@@ -555,17 +559,7 @@ export function UserTable() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="flex-1">
-            <Label>Дата создания</Label>
-            <DatePicker
-              id="created-at-filter"
-              value={createdAtFilter}
-              onChange={(date) => {
-                setCreatedAtFilter(date);
-              }}
-              placeholder="Фильтр по дате создания"
-            />
-          </div>
+       
           {/* <div className="flex-1">
             <Label>Статус</Label>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -607,6 +601,31 @@ export function UserTable() {
                 <SelectItem value="paid">Платно</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="flex-1">
+            <Label>Период создания</Label>
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <DatePicker
+                  id="date-start-filter"
+                  value={dateRange.start}
+                  onChange={(date) => {
+                    setDateRange(prev => ({ ...prev, start: date }));
+                  }}
+                  placeholder="От"
+                />
+              </div>
+              <div className="flex-1">
+                <DatePicker
+                  id="date-end-filter"
+                  value={dateRange.end}
+                  onChange={(date) => {
+                    setDateRange(prev => ({ ...prev, end: date }));
+                  }}
+                  placeholder="До"
+                />
+              </div>
+            </div>
           </div>
         </div>
 

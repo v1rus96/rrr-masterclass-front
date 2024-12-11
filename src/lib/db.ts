@@ -41,8 +41,11 @@ export async function getUsers(
     status?: string;
     onboarding?: boolean;
     hasPhoneNumber?: boolean;
-    createdat?: string | null;
     type?: string;
+    dateRange?: {
+      start?: Date;
+      end?: Date;
+    };
   }
 ): Promise<{
   users: SelectUser[];
@@ -86,8 +89,17 @@ export async function getUsers(
     query = query.eq("type", filters.type);
   }
 
-  if (filters?.createdat) {
-    query = query.gte("createdat", filters.createdat);
+  // Apply date range filter
+  if (filters?.dateRange) {
+    if (filters.dateRange.start) {
+      query = query.gte('createdat', filters.dateRange.start.toISOString());
+    }
+    if (filters.dateRange.end) {
+      // Add one day to include the end date fully
+      const endDate = new Date(filters.dateRange.end);
+      endDate.setDate(endDate.getDate() + 1);
+      query = query.lt('createdat', endDate.toISOString());
+    }
   }
 
   // Apply pagination
