@@ -75,219 +75,235 @@ function UserTableContent({
 }) {
   return (
     <>
-      <Table>
-        <TableCaption>User Overview</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>First Name</TableHead>
-            <TableHead>Last Name</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Mode</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Attended</TableHead>
-            <TableHead>Remarks</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.userid}>
-              <TableCell>
-                {editingCell?.userId === user.userid &&
-                editingCell?.field === "firstname" ? (
-                  <Input
-                    defaultValue={user.firstname}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        user.userid &&
-                          handleEdit(
-                            user.userid,
-                            "firstname",
-                            e.currentTarget.value
-                          );
-                      }
-                    }}
-                  />
-                ) : (
-                  <span
-                    className="cursor-pointer hover:underline"
-                    onClick={() =>
-                      user.userid &&
-                      setEditingCell({
-                        userId: user.userid,
-                        field: "firstname",
-                      })
-                    }
-                  >
-                    {user.firstname}
-                  </span>
-                )}
-              </TableCell>
-              <TableCell>
-                {editingCell?.userId === user.userid &&
-                editingCell?.field === "lastname" ? (
-                  <Input
-                    defaultValue={user.lastname || ""}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        user.userid &&
-                          handleEdit(
-                            user.userid,
-                            "lastname",
-                            e.currentTarget.value
-                          );
-                      }
-                    }}
-                  />
-                ) : (
-                  <span
-                    className="cursor-pointer hover:underline"
-                    onClick={() =>
-                      user.userid &&
-                      setEditingCell({ userId: user.userid, field: "lastname" })
-                    }
-                  >
-                    {user.lastname || <p className="text-gray-300">-</p>}
-                  </span>
-                )}
-              </TableCell>
-              <TableCell>
-                {user.phonenumber || <p className="text-gray-300">-</p>}
-              </TableCell>
-              <TableCell>
-                {editingCell?.userId === user.userid &&
-                editingCell?.field === "status" ? (
-                  <Select
-                    defaultValue={user.status}
-                    onValueChange={(value) =>
-                      user.userid && handleEdit(user.userid, "status", value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new">New</SelectItem>
-                      <SelectItem value="invalid">Invalid</SelectItem>
-                      <SelectItem value="qualified">Qualified</SelectItem>
-                      <SelectItem value="unqualified">Unqualified</SelectItem>
-                      <SelectItem value="follow">Follow-Up Required</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Badge
-                    variant={
-                      user.status === "new"
-                        ? "outline"
-                        : user.status === "invalid"
-                        ? "light"
-                        : user.status === "qualified"
-                        ? "success"
-                        : user.status === "unqualified"
-                        ? "danger"
-                        : user.status === "follow"
-                        ? "blue"
-                        : "default"
-                    }
-                    className="cursor-pointer capitalize"
-                    onClick={() =>
-                      user.userid &&
-                      setEditingCell({ userId: user.userid, field: "status" })
-                    }
-                  >
-                    {user.status}
-                  </Badge>
-                )}
-              </TableCell>
-              <TableCell>
-                {editingCell?.userId === user.userid &&
-                editingCell?.field === "onboarding" ? (
-                  <Select
-                    defaultValue={user.onboarding ? "online" : "offline"}
-                    onValueChange={(value) =>
-                      handleEdit(
-                        user.userid!,
-                        "onboarding",
-                        value === "online" ? "true" : "false"
-                      )
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="online">Online</SelectItem>
-                      <SelectItem value="offline">On-site</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Badge
-                    variant={user.onboarding ? "success" : "secondary"}
-                    className="cursor-pointer"
-                    onClick={() =>
-                      setEditingCell({
-                        userId: user.userid!,
-                        field: "onboarding",
-                      })
-                    }
-                  >
-                    {user.onboarding ? "Online" : "On-site"}
-                  </Badge>
-                )}
-              </TableCell>
-              <TableCell>
-                {editingCell?.userId === user.userid && editingCell?.field === "type" ? (
-                  <Select
-                    defaultValue={user.type || "free"}
-                    onValueChange={(value) => handleEdit(user.userid!, "type", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="free">Free</SelectItem>
-                      <SelectItem value="paid">Paid</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Badge
-                    variant={user.type === "paid" ? "success" : "secondary"}
-                    className="cursor-pointer capitalize"
-                    onClick={() => setEditingCell({ userId: user.userid!, field: "type" })}
-                  >
-                    {user.type || "free"}
-                  </Badge>
-                )}
-              </TableCell>
-              <TableCell>
-                <input
-                  type="checkbox"
-                  checked={user.attended ?? false}
-                  onChange={(e) => {
-                    const newValue = e.target.checked;
-                    console.log('Checkbox changed:', { oldValue: user.attended, newValue });
-                    handleEdit(user.userid!, "attended", newValue);
-                  }}
-                  className="w-4 h-4"
-                />
-              </TableCell>
-              <TableCell>
-                {editingCell?.userId === user.userid && editingCell?.field === "remarks" ? (
-                  <Input
-                    className="w-full"
-                    defaultValue={user.remarks || ""}
-                    onBlur={(e) => handleEdit(user.userid!, "remarks", e.target.value)}
-                  />
-                ) : (
-                  <div onClick={() => setEditingCell({ userId: user.userid!, field: "remarks" })}>
-                    {user.remarks || <p className="text-gray-300">-</p>}
-                  </div>
-                )}
-              </TableCell>
+      <div className="w-full overflow-x-auto">
+        <Table className="w-full table-fixed">
+          <TableCaption>Обзор пользователей</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead style={{ width: '150px' }}>Имя</TableHead>
+              <TableHead style={{ width: '150px' }}>Фамилия</TableHead>
+              <TableHead style={{ width: '150px' }}>Телефон</TableHead>
+              <TableHead style={{ width: '150px' }}>Статус</TableHead>
+              <TableHead style={{ width: '120px' }}>Режим</TableHead>
+              <TableHead style={{ width: '120px' }}>Тип</TableHead>
+              <TableHead style={{ width: '100px' }}>Присутствовал</TableHead>
+              <TableHead style={{ width: '200px' }}>Примечания</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user.userid}>
+                <TableCell style={{ width: '150px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {editingCell?.userId === user.userid &&
+                  editingCell?.field === "firstname" ? (
+                    <Input
+                      defaultValue={user.firstname}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          user.userid &&
+                            handleEdit(
+                              user.userid,
+                              "firstname",
+                              e.currentTarget.value
+                            );
+                        }
+                      }}
+                    />
+                  ) : (
+                    <span
+                      className="cursor-pointer hover:underline"
+                      onClick={() =>
+                        user.userid &&
+                        setEditingCell({
+                          userId: user.userid,
+                          field: "firstname",
+                        })
+                      }
+                    >
+                      {user.firstname}
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell style={{ width: '150px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {editingCell?.userId === user.userid &&
+                  editingCell?.field === "lastname" ? (
+                    <Input
+                      defaultValue={user.lastname || ""}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          user.userid &&
+                            handleEdit(
+                              user.userid,
+                              "lastname",
+                              e.currentTarget.value
+                            );
+                        }
+                      }}
+                    />
+                  ) : (
+                    <span
+                      className="cursor-pointer hover:underline"
+                      onClick={() =>
+                        user.userid &&
+                        setEditingCell({ userId: user.userid, field: "lastname" })
+                      }
+                    >
+                      {user.lastname || <p className="text-gray-300">-</p>}
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell style={{ width: '150px' }}>
+                  {user.phonenumber || <p className="text-gray-300">-</p>}
+                </TableCell>
+                <TableCell style={{ width: '150px' }}>
+                  {editingCell?.userId === user.userid &&
+                  editingCell?.field === "status" ? (
+                    <Select
+                      defaultValue={user.status}
+                      onValueChange={(value) =>
+                        user.userid && handleEdit(user.userid, "status", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="new">Новый</SelectItem>
+                        <SelectItem value="invalid">Недействительный</SelectItem>
+                        <SelectItem value="qualified">Квалифицированный</SelectItem>
+                        <SelectItem value="unqualified">Неквалифицированный</SelectItem>
+                        <SelectItem value="follow">Следить</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Badge
+                      variant={
+                        user.status === "new"
+                          ? "outline"
+                          : user.status === "invalid"
+                          ? "light"
+                          : user.status === "qualified"
+                          ? "success"
+                          : user.status === "unqualified"
+                          ? "danger"
+                          : user.status === "follow"
+                          ? "blue"
+                          : "default"
+                      }
+                      className="cursor-pointer capitalize"
+                      onClick={() =>
+                        user.userid &&
+                        setEditingCell({ userId: user.userid, field: "status" })
+                      }
+                    >
+                      {user.status === "new"
+                        ? "Новый"
+                        : user.status === "invalid"
+                        ? "Недействительный"
+                        : user.status === "qualified"
+                        ? "Квалифицированный"
+                        : user.status === "unqualified"
+                        ? "Неквалифицированный"
+                        : user.status === "follow"
+                        ? "Следить"
+                        : user.status}
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell style={{ width: '120px' }}>
+                  {editingCell?.userId === user.userid &&
+                  editingCell?.field === "onboarding" ? (
+                    <Select
+                      defaultValue={user.onboarding ? "online" : "offline"}
+                      onValueChange={(value) =>
+                        handleEdit(
+                          user.userid!,
+                          "onboarding",
+                          value === "online" ? "true" : "false"
+                        )
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="online">Онлайн</SelectItem>
+                        <SelectItem value="offline">Оффлайн</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Badge
+                      variant={user.onboarding ? "success" : "secondary"}
+                      className="cursor-pointer"
+                      onClick={() =>
+                        setEditingCell({
+                          userId: user.userid!,
+                          field: "onboarding",
+                        })
+                      }
+                    >
+                      {user.onboarding ? "Онлайн" : "Оффлайн"}
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell style={{ width: '120px' }}>
+                  {editingCell?.userId === user.userid && editingCell?.field === "type" ? (
+                    <Select
+                      defaultValue={user.type || "free"}
+                      onValueChange={(value) => handleEdit(user.userid!, "type", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="free">Бесплатно</SelectItem>
+                        <SelectItem value="paid">Платно</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Badge
+                      variant={user.type === "paid" ? "success" : "secondary"}
+                      className="cursor-pointer capitalize"
+                      onClick={() => setEditingCell({ userId: user.userid!, field: "type" })}
+                    >
+                      {user.type === "paid"
+                        ? "Платно"
+                        : user.type === "free"
+                        ? "Бесплатно"
+                        : user.type}
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell style={{ width: '100px' }}>
+                  <input
+                    type="checkbox"
+                    checked={user.attended ?? false}
+                    onChange={(e) => {
+                      const newValue = e.target.checked;
+                      console.log('Checkbox changed:', { oldValue: user.attended, newValue });
+                      handleEdit(user.userid!, "attended", newValue);
+                    }}
+                    className="w-4 h-4"
+                  />
+                </TableCell>
+                <TableCell style={{ width: '200px' }}>
+                  {editingCell?.userId === user.userid && editingCell?.field === "remarks" ? (
+                    <Input
+                      className="w-full"
+                      defaultValue={user.remarks || ""}
+                      onBlur={(e) => handleEdit(user.userid!, "remarks", e.target.value)}
+                    />
+                  ) : (
+                    <div onClick={() => setEditingCell({ userId: user.userid!, field: "remarks" })}>
+                      {user.remarks || <p className="text-gray-300">-</p>}
+                    </div>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       <div className="mt-4">
         <Pagination>
           <PaginationContent>
@@ -299,7 +315,7 @@ function UserTableContent({
               }}
               aria-disabled={currentPage === 1}
             >
-              Previous
+              Предыдущий
             </PaginationPrevious>
             
             {/* First page */}
@@ -363,7 +379,7 @@ function UserTableContent({
               }}
               aria-disabled={currentPage === totalPages}
             >
-              Next
+              Следующий
             </PaginationNext>
           </PaginationContent>
         </Pagination>
@@ -531,48 +547,64 @@ export function UserTable() {
       <div className="mb-4 space-y-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
           <div className="flex-1">
-            <Label htmlFor="search">Search</Label>
+            <Label htmlFor="search">Поиск</Label>
             <Input
               id="search"
-              placeholder="Search by name or username"
+              placeholder="Поиск по имени или телефону..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="flex-1">
-            <Label htmlFor="created-at-filter">Created At</Label>
+            <Label>Дата создания</Label>
             <DatePicker
               id="created-at-filter"
               value={createdAtFilter}
               onChange={(date) => {
                 setCreatedAtFilter(date);
               }}
-              placeholder="Filter by created at"
+              placeholder="Фильтр по дате создания"
             />
           </div>
-          <div className="flex-1">
-            <Label htmlFor="mode-filter">Mode</Label>
-            <Select value={modeFilter} onValueChange={setModeFilter}>
-              <SelectTrigger id="mode-filter">
-                <SelectValue placeholder="Filter by mode" />
+          {/* <div className="flex-1">
+            <Label>Статус</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger id="status-filter">
+                <SelectValue placeholder="Фильтр по статусу" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="online">Online</SelectItem>
-                <SelectItem value="offline">Offline</SelectItem>
+                <SelectItem value="all">Все статусы</SelectItem>
+                <SelectItem value="new">Новый</SelectItem>
+                <SelectItem value="invalid">Недействительный</SelectItem>
+                <SelectItem value="qualified">Квалифицированный</SelectItem>
+                <SelectItem value="unqualified">Неквалифицированный</SelectItem>
+                <SelectItem value="follow">Следить</SelectItem>
+              </SelectContent>
+            </Select>
+          </div> */}
+          <div className="flex-1">
+            <Label>Режим</Label>
+            <Select value={modeFilter} onValueChange={setModeFilter}>
+              <SelectTrigger id="mode-filter">
+                <SelectValue placeholder="Фильтр по режиму" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Все режимы</SelectItem>
+                <SelectItem value="online">Онлайн</SelectItem>
+                <SelectItem value="offline">Оффлайн</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="flex-1">
-            <Label htmlFor="type-filter">Type</Label>
+            <Label>Тип</Label>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger id="type-filter">
-                <SelectValue placeholder="Filter by type" />
+                <SelectValue placeholder="Фильтр по типу" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="free">Free</SelectItem>
-                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="all">Все типы</SelectItem>
+                <SelectItem value="free">Бесплатно</SelectItem>
+                <SelectItem value="paid">Платно</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -581,38 +613,38 @@ export function UserTable() {
         <Tabs defaultValue="all" value={statusFilter} onValueChange={setStatusFilter} className="w-full">
           <TabsList className="w-full justify-start">
             <TabsTrigger value="all" className="flex gap-2">
-              All
+              Все
               <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
                 {totalUsers}
               </span>
             </TabsTrigger>
             <TabsTrigger value="new" className="flex gap-2">
-              New
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
+              Новый
+              <span className="rounded-full border border-input bg-background px-2 py-0.5 text-xs">
                 {statusCounts.new || 0}
               </span>
             </TabsTrigger>
             <TabsTrigger value="qualified" className="flex gap-2">
-              Qualified
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
+              Квалифицированный
+              <span className="rounded-full bg-green-500 text-white px-2 py-0.5 text-xs">
                 {statusCounts.qualified || 0}
               </span>
             </TabsTrigger>
             <TabsTrigger value="unqualified" className="flex gap-2">
-              Unqualified
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
+              Неквалифицированный
+              <span className="rounded-full bg-red-500 text-white px-2 py-0.5 text-xs">
                 {statusCounts.unqualified || 0}
               </span>
             </TabsTrigger>
             <TabsTrigger value="invalid" className="flex gap-2">
-              Invalid
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
+              Недействительный
+              <span className="rounded-full bg-gray-300 text-gray-800 px-2 py-0.5 text-xs">
                 {statusCounts.invalid || 0}
               </span>
             </TabsTrigger>
             <TabsTrigger value="follow" className="flex gap-2">
-              Follow-Up
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
+              Следить
+              <span className="rounded-full bg-blue-500 text-white px-2 py-0.5 text-xs">
                 {statusCounts.follow || 0}
               </span>
             </TabsTrigger>

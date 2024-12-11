@@ -86,7 +86,7 @@ export default function DashboardPage() {
     if (error) {
       console.error("Error signing out:", error.message);
     } else {
-      alert("Logged out successfully!");
+      alert("Вы успешно вышли из системы!");
       router.push("/login"); // Safe navigation
     }
   };
@@ -94,11 +94,11 @@ export default function DashboardPage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Customers Dashboard</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Панель управления клиентами</h2>
         <div className="flex items-center space-x-2">
           <Button size="icon" variant="ghost">
             <Bell className="h-4 w-4" />
-            <span className="sr-only">Notifications</span>
+            <span className="sr-only">Уведомления</span>
           </Button>
           {/* Logout Button */}
           <Button
@@ -115,7 +115,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium">Всего пользователей</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -125,40 +125,40 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Onboarded Users
+              Новые пользователи
             </CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{onboardedUsers}</div>
             <p className="text-xs text-muted-foreground">
-              {((onboardedUsers / totalUsers) * 100).toFixed(1)}% of total users
+              {((onboardedUsers / totalUsers) * 100).toFixed(1)}% от всех пользователей
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Qualified Users</CardTitle>
+            <CardTitle className="text-sm font-medium">Квалифицированные пользователи</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalQualified}</div>
             <p className="text-xs text-muted-foreground">
-              {((totalQualified / totalUsers) * 100).toFixed(1)}% of total users
+              {((totalQualified / totalUsers) * 100).toFixed(1)}% от всех пользователей
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Unqualified Users
+              Неквалифицированные пользователи
             </CardTitle>
             <XCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalUnqualified}</div>
             <p className="text-xs text-muted-foreground">
-              {((totalUnqualified / totalUsers) * 100).toFixed(1)}% of total users
+              {((totalUnqualified / totalUsers) * 100).toFixed(1)}% от всех пользователей
             </p>
           </CardContent>
         </Card>
@@ -166,7 +166,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-1 sm:grid-cols-1 lg:grid-cols-1"> 
         <Card className="col-span-1">
           <CardHeader>
-            <CardTitle>User Overview</CardTitle>
+            <CardTitle>Обзор пользователей</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (

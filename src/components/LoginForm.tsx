@@ -20,8 +20,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  email: z.string().email('Неверный адрес электронной почты'),
+  password: z.string().min(8, 'Пароль должен содержать не менее 8 символов'),
 });
 
 export function LoginForm() {
@@ -46,13 +46,13 @@ export function LoginForm() {
     
     if (error) {
       toast({
-        title: 'Error!',
+        title: 'Ошибка!',
         description: error.message,
       });
     } else {
       toast({
-        title: 'Success!',
-        description: 'You have successfully logged in.',
+        title: 'Успешно!',
+        description: 'Вы успешно вошли в систему.',
       
       });
       window.location.href = "/";
@@ -69,9 +69,9 @@ export function LoginForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Эл. почта</FormLabel>
               <FormControl>
-                <Input placeholder="you@example.com" {...field} />
+                <Input placeholder="вы@пример.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -82,7 +82,7 @@ export function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Пароль</FormLabel>
               <FormControl>
                 <Input type="password" placeholder="••••••••" {...field} />
               </FormControl>
@@ -92,7 +92,7 @@ export function LoginForm() {
         />
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Sign In
+          Войти
         </Button>
       </form>
     </Form>
