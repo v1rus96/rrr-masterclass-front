@@ -5,7 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Loader2 } from 'lucide-react';
-import { supabase } from '@/lib/db';
+import { createClient } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +28,8 @@ const formSchema = z.object({
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
+  const supabase = createClient();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,28 +40,40 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
+    try {
+      setIsLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-    });
-    
-    if (error) {
-      toast({
-        title: 'Ошибка!',
-        description: error.message,
+      const { error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
       });
-    } else {
+      
+      if (error) {
+        toast({
+          title: 'Ошибка!',
+          description: error.message,
+          variant: 'destructive',
+        });
+        return;
+      }
+
       toast({
         title: 'Успешно!',
         description: 'Вы успешно вошли в систему.',
-      
       });
-      window.location.href = "/";
-    }
 
-    setIsLoading(false);
+      // Use the Next.js router for client-side navigation
+      router.refresh(); // Refresh the current page to update server components
+      router.push('/'); // Navigate to home page
+    } catch (error) {
+      toast({
+        title: 'Ошибка!',
+        description: 'Произошла ошибка при входе в систему.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
